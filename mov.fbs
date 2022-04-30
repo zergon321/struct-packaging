@@ -1,0 +1,11 @@
+namespace fb;
+
+table Movement {
+    opcode:int;
+    character_id:[ubyte];
+    x:double;
+    y:double;
+    z:double;
+}
+
+root_type Movement;

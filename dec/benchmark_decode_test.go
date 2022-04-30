@@ -1,4 +1,4 @@
-package main_test
+package main_dec_test
 
 import (
 	"bytes"
@@ -37,8 +37,11 @@ func BenchmarkJSON(b *testing.B) {
 		Z:           45.13,
 	}
 
+	data, _ := json.Marshal(mv)
+	var newMv Movement
+
 	for i := 0; i < b.N; i++ {
-		json.Marshal(mv)
+		json.Unmarshal(data, &newMv)
 	}
 }
 
@@ -54,9 +57,14 @@ func BenchmarkGob(b *testing.B) {
 
 	buffer := bytes.NewBuffer(make([]byte, movementSize))
 	enc := gob.NewEncoder(buffer)
+	enc.Encode(mv)
+
+	var newMv Movement
+	dec := gob.NewDecoder(buffer)
 
 	for i := 0; i < b.N; i++ {
-		enc.Encode(mv)
+		buffer.Reset()
+		dec.Decode(&newMv)
 	}
 }
 
@@ -70,17 +78,25 @@ func BenchmarkBinary(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movementSize)
+	data := make([]byte, 0, movementSize)
 	buffer := bytes.NewBuffer(data)
+
+	binary.Write(buffer, binary.LittleEndian, mv.Opcode)
+	binary.Write(buffer, binary.LittleEndian, mv.CharacterID[:])
+	binary.Write(buffer, binary.LittleEndian, mv.X)
+	binary.Write(buffer, binary.LittleEndian, mv.Y)
+	binary.Write(buffer, binary.LittleEndian, mv.Z)
+
+	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
 		buffer.Reset()
 
-		binary.Write(buffer, binary.LittleEndian, mv.Opcode)
-		binary.Write(buffer, binary.LittleEndian, mv.CharacterID[:])
-		binary.Write(buffer, binary.LittleEndian, mv.X)
-		binary.Write(buffer, binary.LittleEndian, mv.Y)
-		binary.Write(buffer, binary.LittleEndian, mv.Z)
+		binary.Read(buffer, binary.LittleEndian, &newMv.Opcode)
+		binary.Read(buffer, binary.LittleEndian, newMv.CharacterID[:])
+		binary.Read(buffer, binary.LittleEndian, &mv.X)
+		binary.Read(buffer, binary.LittleEndian, &mv.Y)
+		binary.Read(buffer, binary.LittleEndian, &mv.Z)
 	}
 }
 
@@ -94,17 +110,25 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movementSize)
+	data := make([]byte, 0, movementSize)
 	buffer := bytes.NewBuffer(data)
+
+	binary.Write(buffer, binary.BigEndian, mv.Opcode)
+	binary.Write(buffer, binary.BigEndian, mv.CharacterID[:])
+	binary.Write(buffer, binary.BigEndian, mv.X)
+	binary.Write(buffer, binary.BigEndian, mv.Y)
+	binary.Write(buffer, binary.BigEndian, mv.Z)
+
+	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
 		buffer.Reset()
 
-		binary.Write(buffer, binary.BigEndian, mv.Opcode)
-		binary.Write(buffer, binary.BigEndian, mv.CharacterID[:])
-		binary.Write(buffer, binary.BigEndian, mv.X)
-		binary.Write(buffer, binary.BigEndian, mv.Y)
-		binary.Write(buffer, binary.BigEndian, mv.Z)
+		binary.Read(buffer, binary.BigEndian, &newMv.Opcode)
+		binary.Read(buffer, binary.BigEndian, newMv.CharacterID[:])
+		binary.Read(buffer, binary.BigEndian, &mv.X)
+		binary.Read(buffer, binary.BigEndian, &mv.Y)
+		binary.Read(buffer, binary.BigEndian, &mv.Z)
 	}
 }
 
@@ -120,16 +144,28 @@ func BenchmarkBinaryNoReflection(b *testing.B) {
 
 	data := make([]byte, movementSize)
 
+	binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
+
+	for i := 4; i < 20; i++ {
+		data[i] = mv.CharacterID[i-4]
+	}
+
+	binary.LittleEndian.PutUint64(data[20:], math.Float64bits(mv.X))
+	binary.LittleEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
+	binary.LittleEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
+
+	var newMv Movement
+
 	for i := 0; i < b.N; i++ {
-		binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
+		newMv.Opcode = int32(binary.LittleEndian.Uint32(data))
 
 		for i := 4; i < 20; i++ {
-			data[i] = mv.CharacterID[i-4]
+			newMv.CharacterID[i-4] = data[i]
 		}
 
-		binary.LittleEndian.PutUint64(data[20:], math.Float64bits(mv.X))
-		binary.LittleEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
-		binary.LittleEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
+		newMv.X = math.Float64frombits(binary.LittleEndian.Uint64(data[20:]))
+		newMv.Y = math.Float64frombits(binary.LittleEndian.Uint64(data[28:]))
+		newMv.Z = math.Float64frombits(binary.LittleEndian.Uint64(data[36:]))
 	}
 }
 
@@ -145,16 +181,28 @@ func BenchmarkBinaryBigEndianNoReflection(b *testing.B) {
 
 	data := make([]byte, movementSize)
 
+	binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
+
+	for i := 4; i < 20; i++ {
+		data[i] = mv.CharacterID[i-4]
+	}
+
+	binary.BigEndian.PutUint64(data[20:], math.Float64bits(mv.X))
+	binary.BigEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
+	binary.BigEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
+
+	var newMv Movement
+
 	for i := 0; i < b.N; i++ {
-		binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
+		newMv.Opcode = int32(binary.BigEndian.Uint32(data))
 
 		for i := 4; i < 20; i++ {
-			data[i] = mv.CharacterID[i-4]
+			newMv.CharacterID[i-4] = data[i]
 		}
 
-		binary.BigEndian.PutUint64(data[20:], math.Float64bits(mv.X))
-		binary.BigEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
-		binary.BigEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
+		newMv.X = math.Float64frombits(binary.BigEndian.Uint64(data[20:]))
+		newMv.Y = math.Float64frombits(binary.BigEndian.Uint64(data[28:]))
+		newMv.Z = math.Float64frombits(binary.BigEndian.Uint64(data[36:]))
 	}
 }
 
@@ -168,8 +216,12 @@ func BenchmarkProtobuf(b *testing.B) {
 		Z:           45.13,
 	}
 
+	data, _ := proto.Marshal(&mv)
+
+	var newMv pb.Movement
+
 	for i := 0; i < b.N; i++ {
-		proto.Marshal(&mv)
+		proto.Unmarshal(data, &newMv)
 	}
 }
 
@@ -185,17 +237,19 @@ func BenchmarkFlatBuffers(b *testing.B) {
 
 	builder := flatbuffers.NewBuilder(movementSize)
 
+	builder.PlaceInt32(mv.Opcode)
+	builder.CreateByteVector(mv.CharacterID[:])
+	builder.PlaceFloat64(mv.X)
+	builder.PlaceFloat64(mv.Y)
+	builder.PlaceFloat64(mv.Z)
+
+	builder.Finish(0)
+	builder.FinishedBytes()
+
+	var newMv Movement
+
 	for i := 0; i < b.N; i++ {
-		builder.Reset()
-
-		builder.PlaceInt32(mv.Opcode)
-		builder.CreateByteVector(mv.CharacterID[:])
-		builder.PlaceFloat64(mv.X)
-		builder.PlaceFloat64(mv.Y)
-		builder.PlaceFloat64(mv.Z)
-
-		builder.Finish(0)
-		builder.FinishedBytes()
+		flatbuffers.GetInt32()
 	}
 }
 
