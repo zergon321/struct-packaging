@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"math"
+	"struct-packaging/fb"
 	"struct-packaging/pb"
 	"testing"
 	"unsafe"
@@ -189,14 +190,7 @@ func BenchmarkFlatBuffers(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		builder.Reset()
 
-		builder.PlaceInt32(mv.Opcode)
-		builder.CreateByteVector(mv.CharacterID[:])
-		builder.PlaceFloat64(mv.X)
-		builder.PlaceFloat64(mv.Y)
-		builder.PlaceFloat64(mv.Z)
-
-		builder.Finish(0)
-		builder.FinishedBytes()
+		fb.CreateMovement(builder, mv.Opcode, mv.CharacterID[:], mv.X, mv.Y, mv.Z)
 	}
 }
 

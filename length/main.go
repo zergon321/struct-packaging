@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
+	"struct-packaging/fb"
 	"struct-packaging/pb"
 	"unsafe"
 
@@ -70,14 +71,7 @@ func main() {
 	handleError(err)
 
 	builder := flatbuffers.NewBuilder(movementSize)
-	builder.PlaceInt32(mv.Opcode)
-	builder.CreateByteVector(mv.CharacterID[:])
-	builder.PlaceFloat64(mv.X)
-	builder.PlaceFloat64(mv.Y)
-	builder.PlaceFloat64(mv.Z)
-
-	builder.Finish(0)
-	fbData := builder.FinishedBytes()
+	fbData := fb.CreateMovement(builder, mv.Opcode, mv.CharacterID[:], mv.X, mv.Y, mv.Z)
 
 	unsafeData := (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
 

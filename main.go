@@ -16,6 +16,11 @@ const (
 	movementSize = int(unsafe.Sizeof(Movement{}))
 )
 
+func up(mv Movement) []byte {
+	// leaking parameter (closure)
+	return (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
+}
+
 func main() {
 	mv := Movement{
 		Opcode: 32,
@@ -32,4 +37,8 @@ func main() {
 	newMv := *(*Movement)(unsafe.Pointer(&packet[0]))
 
 	fmt.Println(newMv)
+
+	data := up(mv)
+
+	fmt.Println(data)
 }

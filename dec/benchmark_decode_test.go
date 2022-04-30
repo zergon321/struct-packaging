@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"math"
+	"struct-packaging/fb"
 	"struct-packaging/pb"
 	"testing"
 	"unsafe"
@@ -236,20 +237,10 @@ func BenchmarkFlatBuffers(b *testing.B) {
 	}
 
 	builder := flatbuffers.NewBuilder(movementSize)
-
-	builder.PlaceInt32(mv.Opcode)
-	builder.CreateByteVector(mv.CharacterID[:])
-	builder.PlaceFloat64(mv.X)
-	builder.PlaceFloat64(mv.Y)
-	builder.PlaceFloat64(mv.Z)
-
-	builder.Finish(0)
-	builder.FinishedBytes()
-
-	var newMv Movement
+	data := fb.CreateMovement(builder, mv.Opcode, mv.CharacterID[:], mv.X, mv.Y, mv.Z)
 
 	for i := 0; i < b.N; i++ {
-		flatbuffers.GetInt32()
+		fb.ReadMovement(data)
 	}
 }
 
@@ -263,7 +254,9 @@ func BenchmarkUnsafe(b *testing.B) {
 		Z:           45.13,
 	}
 
+	data := (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
+
 	for i := 0; i < b.N; i++ {
-		_ = (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
+		_ = *(*Movement)(unsafe.Pointer(&data[0]))
 	}
 }
