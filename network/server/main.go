@@ -26,8 +26,13 @@ func main() {
 
 	for {
 		var buffer [movSize]byte
-		_, err = conn.Read(buffer[:])
-		handleError(err)
+		total := 0
+
+		for total < int(movSize) {
+			read, err := conn.Read(buffer[total:])
+			handleError(err)
+			total += read
+		}
 
 		mov := *(*Movement)(unsafe.Pointer(&buffer[0]))
 		fmt.Println(mov)

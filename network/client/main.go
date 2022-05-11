@@ -34,8 +34,13 @@ func main() {
 		}
 
 		data := (*[movSize]byte)(unsafe.Pointer(&mov))[:]
-		_, err = conn.Write(data)
-		handleError(err)
+		total := 0
+
+		for total < int(movSize) {
+			written, err := conn.Write(data[total:])
+			handleError(err)
+			total += written
+		}
 
 		//fmt.Println(data)
 	}
