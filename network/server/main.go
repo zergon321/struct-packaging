@@ -18,6 +18,11 @@ const (
 	movSize = uint64(unsafe.Sizeof(Movement{}))
 )
 
+//go:noinline
+func down(data []byte) Movement {
+	return *(*Movement)(unsafe.Pointer(&data[0]))
+}
+
 func main() {
 	listener, err := net.Listen("tcp", "127.0.0.1:9828")
 	handleError(err)
@@ -34,7 +39,7 @@ func main() {
 			total += read
 		}
 
-		mov := *(*Movement)(unsafe.Pointer(&buffer[0]))
+		mov := down(buffer[:])
 		fmt.Println(mov)
 		fmt.Println(buffer)
 	}

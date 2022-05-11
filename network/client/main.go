@@ -19,6 +19,12 @@ const (
 	movSize = uint64(unsafe.Sizeof(Movement{}))
 )
 
+//go:noinline
+func up(mv Movement) []byte {
+	// leaking parameter (closure)
+	return (*[movSize]byte)(unsafe.Pointer(&mv))[:]
+}
+
 func main() {
 	characterID := uuid.New()
 	conn, err := net.Dial("tcp", "127.0.0.1:9828")
@@ -33,7 +39,7 @@ func main() {
 			Z:           87.51,
 		}
 
-		data := (*[movSize]byte)(unsafe.Pointer(&mov))[:]
+		data := up(mov)
 		total := 0
 
 		for total < int(movSize) {
