@@ -14,6 +14,7 @@ import (
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/proto"
+	"gopkg.in/yaml.v2"
 )
 
 type Movement struct {
@@ -40,6 +41,21 @@ func BenchmarkJSON(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		json.Marshal(mv)
+	}
+}
+
+func BenchmarkYAML(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		yaml.Marshal(mv)
 	}
 }
 

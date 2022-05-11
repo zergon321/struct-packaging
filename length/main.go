@@ -47,7 +47,8 @@ func main() {
 	jsonData, err := json.Marshal(mv)
 	handleError(err)
 
-	buffer := bytes.NewBuffer(make([]byte, movementSize))
+	buffer := bytes.NewBuffer(make([]byte, 0, movementSize))
+	buffer.Reset()
 	enc := gob.NewEncoder(buffer)
 	err = enc.Encode(mv)
 	handleError(err)
