@@ -5,24 +5,36 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
+	"encoding/xml"
 	"math"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
 	"testing"
 	"unsafe"
 
+	"github.com/fxamacker/cbor"
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
+	msgpack "github.com/vmihailenco/msgpack/v5"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v2"
 )
 
 type Movement struct {
-	Opcode      int32
-	CharacterID [16]byte
-	X           float64
-	Y           float64
-	Z           float64
+	Opcode      int32    `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	CharacterID [16]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	X           float64  `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64  `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+}
+
+type MovementAlt struct {
+	Opcode      int32    `xml:"opcode,attr"      `
+	CharacterID [16]byte `xml:"character_id,attr"`
+	X           float64  `xml:"x,attr"           `
+	Y           float64  `xml:"y,attr"           `
+	Z           float64  `xml:"z,attr"           `
 }
 
 const (
@@ -59,6 +71,36 @@ func BenchmarkYAML(b *testing.B) {
 	}
 }
 
+func BenchmarkXML(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		xml.Marshal(mv)
+	}
+}
+
+func BenchmarkXMLAlt(b *testing.B) {
+	characterID := uuid.New()
+	mv := MovementAlt{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		xml.Marshal(mv)
+	}
+}
+
 func BenchmarkGob(b *testing.B) {
 	characterID := uuid.New()
 	mv := Movement{
@@ -75,6 +117,100 @@ func BenchmarkGob(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buffer.Reset()
 		enc.Encode(mv)
+	}
+}
+
+func BenchmarkMsgpack(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		msgpack.Marshal(mv)
+	}
+}
+
+func BenchmarkBSON(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		bson.MarshalValue(mv)
+	}
+}
+
+func BenchmarkCBORCanonicalOptions(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		cbor.Marshal(mv,
+			cbor.CanonicalEncOptions())
+	}
+}
+
+func BenchmarkCBORCTAP2Options(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		cbor.Marshal(mv,
+			cbor.CTAP2EncOptions())
+	}
+}
+
+func BenchmarkCBORCoreDetOptions(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		cbor.Marshal(mv,
+			cbor.CoreDetEncOptions())
+	}
+}
+
+func BenchmarkCBORPreferredUnsortedOptions(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	for i := 0; i < b.N; i++ {
+		cbor.Marshal(mv,
+			cbor.PreferredUnsortedEncOptions())
 	}
 }
 

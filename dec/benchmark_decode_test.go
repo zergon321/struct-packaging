@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
+	"encoding/xml"
 	"math"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
@@ -13,15 +14,26 @@ import (
 
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
+	"github.com/vmihailenco/msgpack"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/proto"
+	"gopkg.in/yaml.v2"
 )
 
 type Movement struct {
-	Opcode      int32
-	CharacterID [16]byte
-	X           float64
-	Y           float64
-	Z           float64
+	Opcode      int32    `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	CharacterID [16]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	X           float64  `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64  `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+}
+
+type MovementAlt struct {
+	Opcode      int32    `xml:"opcode,attr"      `
+	CharacterID [16]byte `xml:"character_id,attr"`
+	X           float64  `xml:"x,attr"           `
+	Y           float64  `xml:"y,attr"           `
+	Z           float64  `xml:"z,attr"           `
 }
 
 const (
@@ -46,6 +58,74 @@ func BenchmarkJSON(b *testing.B) {
 	}
 }
 
+func BenchmarkYAML(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := yaml.Marshal(mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		yaml.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkYAMLStrict(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := yaml.Marshal(mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		yaml.UnmarshalStrict(data, &newMv)
+	}
+}
+
+func BenchmarkXML(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := xml.Marshal(mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		xml.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkXMLAlt(b *testing.B) {
+	characterID := uuid.New()
+	mv := MovementAlt{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := xml.Marshal(mv)
+	var newMv MovementAlt
+
+	for i := 0; i < b.N; i++ {
+		xml.Unmarshal(data, &newMv)
+	}
+}
+
 func BenchmarkGob(b *testing.B) {
 	characterID := uuid.New()
 	mv := Movement{
@@ -66,6 +146,40 @@ func BenchmarkGob(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		buffer.Reset()
 		dec.Decode(&newMv)
+	}
+}
+
+func BenchmarkMsgpack(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := msgpack.Marshal(mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		msgpack.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkBSON(b *testing.B) {
+	characterID := uuid.New()
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	_, data, _ := bson.MarshalValue(mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		bson.Unmarshal(data, &newMv)
 	}
 }
 
