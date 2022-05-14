@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
@@ -12,15 +13,25 @@ import (
 
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
+	"github.com/vmihailenco/msgpack/v5"
+	"go.mongodb.org/mongo-driver/bson"
 	"google.golang.org/protobuf/proto"
 )
 
 type Movement struct {
-	Opcode      int32
-	CharacterID [16]byte
-	X           float64
-	Y           float64
-	Z           float64
+	Opcode      int32    `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	CharacterID [16]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	X           float64  `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64  `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+}
+
+type MovementAlt struct {
+	Opcode      int32    `xml:"opcode,attr"      `
+	CharacterID [16]byte `xml:"character_id,attr"`
+	X           float64  `xml:"x,attr"           `
+	Y           float64  `xml:"y,attr"           `
+	Z           float64  `xml:"z,attr"           `
 }
 
 const (
@@ -30,6 +41,13 @@ const (
 func main() {
 	characterID := uuid.New()
 	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	mvAlt := MovementAlt{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
 		X:           13.34,
@@ -47,12 +65,27 @@ func main() {
 	jsonData, err := json.Marshal(mv)
 	handleError(err)
 
+	yamlData, err := json.Marshal(mv)
+	handleError(err)
+
+	xmlData, err := xml.Marshal(mv)
+	handleError(err)
+
+	xmlAltData, err := xml.Marshal(mvAlt)
+	handleError(err)
+
 	buffer := bytes.NewBuffer(make([]byte, 0, movementSize))
 	buffer.Reset()
 	enc := gob.NewEncoder(buffer)
 	err = enc.Encode(mv)
 	handleError(err)
 	gobData := buffer.Bytes()
+
+	msgpackData, err := msgpack.Marshal(mv)
+	handleError(err)
+
+	_, bsonData, err := bson.MarshalValue(mv)
+	handleError(err)
 
 	buffer = bytes.NewBuffer(make([]byte, movementSize))
 	buffer.Reset()
@@ -77,7 +110,12 @@ func main() {
 	unsafeData := (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
 
 	fmt.Println("JSON data bytes length:", len(jsonData))
+	fmt.Println("YAML data bytes length:", len(yamlData))
+	fmt.Println("XML data bytes length:", len(xmlData))
+	fmt.Println("XML tags only data bytes length:", len(xmlAltData))
 	fmt.Println("gob data bytes length:", len(gobData))
+	fmt.Println("Msgpack data bytes length:", len(msgpackData))
+	fmt.Println("BSON data bytes length:", len(bsonData))
 	fmt.Println("binary data bytes length:", len(binData))
 	fmt.Println("Protobuf data bytes length:", len(pbData))
 	fmt.Println("flat buffers data bytes length:", len(fbData))
