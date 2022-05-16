@@ -11,6 +11,7 @@ import (
 	"struct-packaging/pb"
 	"unsafe"
 
+	"github.com/fxamacker/cbor"
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
 	"github.com/vmihailenco/msgpack/v5"
@@ -26,6 +27,14 @@ type Movement struct {
 	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
+type MovementByte struct {
+	Opcode      int32   `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	CharacterID []byte  `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	X           float64 `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64 `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64 `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+}
+
 type MovementAlt struct {
 	Opcode      int32    `xml:"opcode,attr"      `
 	CharacterID [16]byte `xml:"character_id,attr"`
@@ -39,7 +48,7 @@ const (
 )
 
 func main() {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -87,6 +96,19 @@ func main() {
 	_, bsonData, err := bson.MarshalValue(mv)
 	handleError(err)
 
+	cborCanonicalData, err := cbor.Marshal(
+		mv, cbor.CanonicalEncOptions())
+	handleError(err)
+	cborCTAP2Data, err := cbor.Marshal(
+		mv, cbor.CTAP2EncOptions())
+	handleError(err)
+	cborCoreDetData, err := cbor.Marshal(
+		mv, cbor.CoreDetEncOptions())
+	handleError(err)
+	cborPreferredUnsortedData, err := cbor.Marshal(
+		mv, cbor.PreferredUnsortedEncOptions())
+	handleError(err)
+
 	buffer = bytes.NewBuffer(make([]byte, movementSize))
 	buffer.Reset()
 	err = binary.Write(buffer, binary.LittleEndian, mv.Opcode)
@@ -116,10 +138,32 @@ func main() {
 	fmt.Println("gob data bytes length:", len(gobData))
 	fmt.Println("Msgpack data bytes length:", len(msgpackData))
 	fmt.Println("BSON data bytes length:", len(bsonData))
+	fmt.Println("CBOR canonical options data bytes length:", len(cborCanonicalData))
+	fmt.Println("CBOR CTAP2 options data bytes length:", len(cborCTAP2Data))
+	fmt.Println("CBOR core det options data bytes length:", len(cborCoreDetData))
+	fmt.Println("CBOR preferred unsorted options data bytes length:", len(cborPreferredUnsortedData))
 	fmt.Println("binary data bytes length:", len(binData))
 	fmt.Println("Protobuf data bytes length:", len(pbData))
 	fmt.Println("flat buffers data bytes length:", len(fbData))
 	fmt.Println("unsafe cast data bytes length:", len(unsafeData))
+
+	var newMv MovementByte
+
+	err = cbor.Unmarshal(cborCanonicalData, &newMv)
+	handleError(err)
+	fmt.Println(newMv)
+
+	err = cbor.Unmarshal(cborCTAP2Data, &newMv)
+	handleError(err)
+	fmt.Println(newMv)
+
+	err = cbor.Unmarshal(cborCoreDetData, &newMv)
+	handleError(err)
+	fmt.Println(newMv)
+
+	err = cbor.Unmarshal(cborPreferredUnsortedData, &newMv)
+	handleError(err)
+	fmt.Println(newMv)
 }
 
 func handleError(err error) {

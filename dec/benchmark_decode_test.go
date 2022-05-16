@@ -12,6 +12,7 @@ import (
 	"testing"
 	"unsafe"
 
+	"github.com/fxamacker/cbor"
 	flatbuffers "github.com/google/flatbuffers/go"
 	"github.com/google/uuid"
 	"github.com/vmihailenco/msgpack"
@@ -28,6 +29,14 @@ type Movement struct {
 	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
+type MovementSlice struct {
+	Opcode      int32   `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	CharacterID []byte  `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	X           float64 `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64 `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64 `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+}
+
 type MovementAlt struct {
 	Opcode      int32    `xml:"opcode,attr"      `
 	CharacterID [16]byte `xml:"character_id,attr"`
@@ -41,7 +50,7 @@ const (
 )
 
 func BenchmarkJSON(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -59,7 +68,7 @@ func BenchmarkJSON(b *testing.B) {
 }
 
 func BenchmarkYAML(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -76,7 +85,7 @@ func BenchmarkYAML(b *testing.B) {
 }
 
 func BenchmarkYAMLStrict(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -93,7 +102,7 @@ func BenchmarkYAMLStrict(b *testing.B) {
 }
 
 func BenchmarkXML(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -110,7 +119,7 @@ func BenchmarkXML(b *testing.B) {
 }
 
 func BenchmarkXMLAlt(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := MovementAlt{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -127,7 +136,7 @@ func BenchmarkXMLAlt(b *testing.B) {
 }
 
 func BenchmarkGob(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -150,7 +159,7 @@ func BenchmarkGob(b *testing.B) {
 }
 
 func BenchmarkMsgpack(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -167,7 +176,7 @@ func BenchmarkMsgpack(b *testing.B) {
 }
 
 func BenchmarkBSON(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -183,8 +192,80 @@ func BenchmarkBSON(b *testing.B) {
 	}
 }
 
+func BenchmarkCBORCanonicalOptions(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := cbor.Marshal(mv,
+		cbor.CanonicalEncOptions())
+	var newMv MovementSlice
+
+	for i := 0; i < b.N; i++ {
+		cbor.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkCBORCTAP2Options(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := cbor.Marshal(mv,
+		cbor.CTAP2EncOptions())
+	var newMv MovementSlice
+
+	for i := 0; i < b.N; i++ {
+		cbor.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkCBORCoreDetOptions(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := cbor.Marshal(mv,
+		cbor.CoreDetEncOptions())
+	var newMv MovementSlice
+
+	for i := 0; i < b.N; i++ {
+		cbor.Unmarshal(data, &newMv)
+	}
+}
+
+func BenchmarkCBORPreferredUnsortedOptions(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+	data, _ := cbor.Marshal(mv,
+		cbor.PreferredUnsortedEncOptions())
+	var newMv MovementSlice
+
+	for i := 0; i < b.N; i++ {
+		cbor.Unmarshal(data, &newMv)
+	}
+}
+
 func BenchmarkBinary(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -216,7 +297,7 @@ func BenchmarkBinary(b *testing.B) {
 }
 
 func BenchmarkBinaryBigEndian(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -248,7 +329,7 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 }
 
 func BenchmarkBinaryNoReflection(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -285,7 +366,7 @@ func BenchmarkBinaryNoReflection(b *testing.B) {
 }
 
 func BenchmarkBinaryBigEndianNoReflection(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -322,7 +403,7 @@ func BenchmarkBinaryBigEndianNoReflection(b *testing.B) {
 }
 
 func BenchmarkProtobuf(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := pb.Movement{
 		Opcode:      32,
 		CharacterID: characterID[:],
@@ -341,7 +422,7 @@ func BenchmarkProtobuf(b *testing.B) {
 }
 
 func BenchmarkFlatBuffers(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
@@ -359,7 +440,7 @@ func BenchmarkFlatBuffers(b *testing.B) {
 }
 
 func BenchmarkUnsafe(b *testing.B) {
-	characterID := uuid.New()
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
 		Opcode:      32,
 		CharacterID: [16]byte(characterID),
