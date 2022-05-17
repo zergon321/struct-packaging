@@ -49,6 +49,12 @@ const (
 	movementSize = int(unsafe.Sizeof(Movement{}))
 )
 
+func handleError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func BenchmarkJSON(b *testing.B) {
 	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
@@ -154,7 +160,8 @@ func BenchmarkGob(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		buffer.Reset()
-		dec.Decode(&newMv)
+		err := dec.Decode(&newMv)
+		handleError(err)
 	}
 }
 
@@ -325,6 +332,48 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 		binary.Read(buffer, binary.BigEndian, &mv.X)
 		binary.Read(buffer, binary.BigEndian, &mv.Y)
 		binary.Read(buffer, binary.BigEndian, &mv.Z)
+	}
+}
+
+func BenchmarkBinaryWholeStruct(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	data := make([]byte, 0, movementSize)
+	buffer := bytes.NewBuffer(data)
+	binary.Write(buffer, binary.LittleEndian, mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		buffer.Reset()
+		binary.Read(buffer, binary.LittleEndian, &newMv)
+	}
+}
+
+func BenchmarkBinaryWholeStructBigEndian(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	data := make([]byte, 0, movementSize)
+	buffer := bytes.NewBuffer(data)
+	binary.Write(buffer, binary.BigEndian, mv)
+	var newMv Movement
+
+	for i := 0; i < b.N; i++ {
+		buffer.Reset()
+		binary.Read(buffer, binary.BigEndian, &newMv)
 	}
 }
 

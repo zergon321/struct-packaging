@@ -262,6 +262,44 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 	}
 }
 
+func BenchmarkBinaryWholeStruct(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	data := make([]byte, 0, movementSize)
+	buffer := bytes.NewBuffer(data)
+
+	for i := 0; i < b.N; i++ {
+		buffer.Reset()
+		binary.Write(buffer, binary.LittleEndian, mv)
+	}
+}
+
+func BenchmarkBinaryWholeStructBigEndian(b *testing.B) {
+	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
+	mv := Movement{
+		Opcode:      32,
+		CharacterID: [16]byte(characterID),
+		X:           13.34,
+		Y:           20.36,
+		Z:           45.13,
+	}
+
+	data := make([]byte, 0, movementSize)
+	buffer := bytes.NewBuffer(data)
+
+	for i := 0; i < b.N; i++ {
+		buffer.Reset()
+		binary.Write(buffer, binary.BigEndian, mv)
+	}
+}
+
 func BenchmarkBinaryNoReflection(b *testing.B) {
 	characterID, _ := uuid.Parse("1d9ce1d6-7ec5-48d3-be1d-ffaa0056921c")
 	mv := Movement{
