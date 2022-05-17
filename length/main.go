@@ -146,24 +146,6 @@ func main() {
 	fmt.Println("Protobuf data bytes length:", len(pbData))
 	fmt.Println("flat buffers data bytes length:", len(fbData))
 	fmt.Println("unsafe cast data bytes length:", len(unsafeData))
-
-	var newMv MovementByte
-
-	err = cbor.Unmarshal(cborCanonicalData, &newMv)
-	handleError(err)
-	fmt.Println(newMv)
-
-	err = cbor.Unmarshal(cborCTAP2Data, &newMv)
-	handleError(err)
-	fmt.Println(newMv)
-
-	err = cbor.Unmarshal(cborCoreDetData, &newMv)
-	handleError(err)
-	fmt.Println(newMv)
-
-	err = cbor.Unmarshal(cborPreferredUnsortedData, &newMv)
-	handleError(err)
-	fmt.Println(newMv)
 }
 
 func handleError(err error) {
