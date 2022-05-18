@@ -111,7 +111,7 @@ func BenchmarkGob(b *testing.B) {
 		Z:           45.13,
 	}
 
-	buffer := bytes.NewBuffer(make([]byte, movementSize))
+	buffer := bytes.NewBuffer(make([]byte, 0, movementSize))
 	enc := gob.NewEncoder(buffer)
 
 	for i := 0; i < b.N; i++ {

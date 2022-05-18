@@ -6,6 +6,8 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"encoding/xml"
+	"fmt"
+	"io"
 	"math"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
@@ -20,6 +22,68 @@ import (
 	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v2"
 )
+
+type BytesReadSeeker struct {
+	data []byte
+	pos  int
+}
+
+func (brs *BytesReadSeeker) Seek(offset int64, whence int) (int64, error) {
+	var start int
+
+	switch whence {
+	case io.SeekStart:
+		start = 0
+
+	case io.SeekCurrent:
+		start = brs.pos
+
+	case io.SeekEnd:
+		start = len(brs.data)
+
+	default:
+		return -1, fmt.Errorf("option not defined")
+	}
+
+	newPos := start + int(offset)
+
+	switch {
+	case newPos < 0:
+		newPos = 0
+
+	case newPos > len(brs.data):
+		newPos = len(brs.data)
+	}
+
+	brs.pos = newPos
+
+	return int64(brs.pos), nil
+}
+
+func (brw *BytesReadSeeker) Write(p []byte) (n int, err error) {
+	offset := len(p)
+	brw.data = append(brw.data, p...)
+	brw.pos += offset
+
+	return offset, nil
+}
+
+func (brs *BytesReadSeeker) Read(p []byte) (n int, err error) {
+	if brs.pos == len(brs.data) {
+		return -1, io.EOF
+	}
+
+	offset := len(p)
+
+	if offset > len(brs.data)-brs.pos {
+		offset = len(brs.data) - brs.pos
+	}
+
+	copy(p, brs.data[brs.pos:brs.pos+offset])
+	brs.pos += offset
+
+	return offset, nil
+}
 
 type Movement struct {
 	Opcode      int32    `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
@@ -151,15 +215,17 @@ func BenchmarkGob(b *testing.B) {
 		Z:           45.13,
 	}
 
-	buffer := bytes.NewBuffer(make([]byte, movementSize))
+	buffer := bytes.NewBuffer(make([]byte, 0, movementSize))
 	enc := gob.NewEncoder(buffer)
-	enc.Encode(mv)
 
 	var newMv Movement
 	dec := gob.NewDecoder(buffer)
 
 	for i := 0; i < b.N; i++ {
-		buffer.Reset()
+		b.StopTimer()
+		enc.Encode(mv)
+		b.StartTimer()
+
 		err := dec.Decode(&newMv)
 		handleError(err)
 	}
@@ -282,7 +348,10 @@ func BenchmarkBinary(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := bytes.NewBuffer(data)
+	buffer := &BytesReadSeeker{
+		data: data,
+		pos:  0,
+	}
 
 	binary.Write(buffer, binary.LittleEndian, mv.Opcode)
 	binary.Write(buffer, binary.LittleEndian, mv.CharacterID[:])
@@ -293,7 +362,7 @@ func BenchmarkBinary(b *testing.B) {
 	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
-		buffer.Reset()
+		buffer.Seek(0, io.SeekStart)
 
 		binary.Read(buffer, binary.LittleEndian, &newMv.Opcode)
 		binary.Read(buffer, binary.LittleEndian, newMv.CharacterID[:])
@@ -314,7 +383,10 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := bytes.NewBuffer(data)
+	buffer := &BytesReadSeeker{
+		data: data,
+		pos:  0,
+	}
 
 	binary.Write(buffer, binary.BigEndian, mv.Opcode)
 	binary.Write(buffer, binary.BigEndian, mv.CharacterID[:])
@@ -325,7 +397,7 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
-		buffer.Reset()
+		buffer.Seek(0, io.SeekStart)
 
 		binary.Read(buffer, binary.BigEndian, &newMv.Opcode)
 		binary.Read(buffer, binary.BigEndian, newMv.CharacterID[:])
@@ -346,12 +418,15 @@ func BenchmarkBinaryWholeStruct(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := bytes.NewBuffer(data)
+	buffer := &BytesReadSeeker{
+		data: data,
+		pos:  0,
+	}
 	binary.Write(buffer, binary.LittleEndian, mv)
 	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
-		buffer.Reset()
+		buffer.Seek(0, io.SeekStart)
 		binary.Read(buffer, binary.LittleEndian, &newMv)
 	}
 }
@@ -367,12 +442,15 @@ func BenchmarkBinaryWholeStructBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := bytes.NewBuffer(data)
+	buffer := &BytesReadSeeker{
+		data: data,
+		pos:  0,
+	}
 	binary.Write(buffer, binary.BigEndian, mv)
 	var newMv Movement
 
 	for i := 0; i < b.N; i++ {
-		buffer.Reset()
+		buffer.Seek(0, io.SeekStart)
 		binary.Read(buffer, binary.BigEndian, &newMv)
 	}
 }
