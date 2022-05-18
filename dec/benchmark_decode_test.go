@@ -226,8 +226,7 @@ func BenchmarkGob(b *testing.B) {
 		enc.Encode(mv)
 		b.StartTimer()
 
-		err := dec.Decode(&newMv)
-		handleError(err)
+		dec.Decode(&newMv)
 	}
 }
 
