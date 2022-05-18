@@ -23,12 +23,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type BytesReadSeeker struct {
+// BytesReadWriteSeeker
+type BytesReadWriteSeeker struct {
 	data []byte
 	pos  int
 }
 
-func (brs *BytesReadSeeker) Seek(offset int64, whence int) (int64, error) {
+func (brs *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
 	var start int
 
 	switch whence {
@@ -60,7 +61,7 @@ func (brs *BytesReadSeeker) Seek(offset int64, whence int) (int64, error) {
 	return int64(brs.pos), nil
 }
 
-func (brw *BytesReadSeeker) Write(p []byte) (n int, err error) {
+func (brw *BytesReadWriteSeeker) Write(p []byte) (n int, err error) {
 	offset := len(p)
 	brw.data = append(brw.data, p...)
 	brw.pos += offset
@@ -68,7 +69,18 @@ func (brw *BytesReadSeeker) Write(p []byte) (n int, err error) {
 	return offset, nil
 }
 
-func (brs *BytesReadSeeker) Read(p []byte) (n int, err error) {
+func (brws *BytesReadWriteSeeker) ReadByte() (byte, error) {
+	if brws.pos == len(brws.data) {
+		return 0, io.EOF
+	}
+
+	value := brws.data[brws.pos]
+	brws.pos++
+
+	return value, nil
+}
+
+func (brs *BytesReadWriteSeeker) Read(p []byte) (n int, err error) {
 	if brs.pos == len(brs.data) {
 		return -1, io.EOF
 	}
@@ -347,7 +359,7 @@ func BenchmarkBinary(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadSeeker{
+	buffer := &BytesReadWriteSeeker{
 		data: data,
 		pos:  0,
 	}
@@ -382,7 +394,7 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadSeeker{
+	buffer := &BytesReadWriteSeeker{
 		data: data,
 		pos:  0,
 	}
@@ -417,7 +429,7 @@ func BenchmarkBinaryWholeStruct(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadSeeker{
+	buffer := &BytesReadWriteSeeker{
 		data: data,
 		pos:  0,
 	}
@@ -441,7 +453,7 @@ func BenchmarkBinaryWholeStructBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadSeeker{
+	buffer := &BytesReadWriteSeeker{
 		data: data,
 		pos:  0,
 	}
