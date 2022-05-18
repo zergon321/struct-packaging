@@ -23,13 +23,15 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// BytesReadWriteSeeker
+// BytesReadWriteSeeker implements Read, Write,
+// Seek and ReadByte functions for byte slice.
 type BytesReadWriteSeeker struct {
 	data []byte
 	pos  int
 }
 
-func (brs *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
+// Seek moves the pointer to the specified position.
+func (brws *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
 	var start int
 
 	switch whence {
@@ -37,10 +39,10 @@ func (brs *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
 		start = 0
 
 	case io.SeekCurrent:
-		start = brs.pos
+		start = brws.pos
 
 	case io.SeekEnd:
-		start = len(brs.data)
+		start = len(brws.data)
 
 	default:
 		return -1, fmt.Errorf("option not defined")
@@ -52,23 +54,25 @@ func (brs *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
 	case newPos < 0:
 		newPos = 0
 
-	case newPos > len(brs.data):
-		newPos = len(brs.data)
+	case newPos > len(brws.data):
+		newPos = len(brws.data)
 	}
 
-	brs.pos = newPos
+	brws.pos = newPos
 
-	return int64(brs.pos), nil
+	return int64(brws.pos), nil
 }
 
-func (brw *BytesReadWriteSeeker) Write(p []byte) (n int, err error) {
+// Write writes the data to the inner buffer.
+func (brws *BytesReadWriteSeeker) Write(p []byte) (n int, err error) {
 	offset := len(p)
-	brw.data = append(brw.data, p...)
-	brw.pos += offset
+	brws.data = append(brws.data, p...)
+	brws.pos += offset
 
 	return offset, nil
 }
 
+// ReadByte reads exactly 1 byte from the inner buffer.
 func (brws *BytesReadWriteSeeker) ReadByte() (byte, error) {
 	if brws.pos == len(brws.data) {
 		return 0, io.EOF
@@ -80,19 +84,20 @@ func (brws *BytesReadWriteSeeker) ReadByte() (byte, error) {
 	return value, nil
 }
 
-func (brs *BytesReadWriteSeeker) Read(p []byte) (n int, err error) {
-	if brs.pos == len(brs.data) {
+// Read reads the bytes from the inner buffer to the provided buffer.
+func (brws *BytesReadWriteSeeker) Read(p []byte) (n int, err error) {
+	if brws.pos == len(brws.data) {
 		return -1, io.EOF
 	}
 
 	offset := len(p)
 
-	if offset > len(brs.data)-brs.pos {
-		offset = len(brs.data) - brs.pos
+	if offset > len(brws.data)-brws.pos {
+		offset = len(brws.data) - brws.pos
 	}
 
-	copy(p, brs.data[brs.pos:brs.pos+offset])
-	brs.pos += offset
+	copy(p, brws.data[brws.pos:brws.pos+offset])
+	brws.pos += offset
 
 	return offset, nil
 }
