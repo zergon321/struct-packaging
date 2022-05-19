@@ -314,11 +314,7 @@ func BenchmarkBinaryNoReflection(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
-
-		for i := 4; i < 20; i++ {
-			data[i] = mv.CharacterID[i-4]
-		}
-
+		copy(data[4:20], mv.CharacterID[:])
 		binary.LittleEndian.PutUint64(data[20:], math.Float64bits(mv.X))
 		binary.LittleEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
 		binary.LittleEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
@@ -339,11 +335,7 @@ func BenchmarkBinaryBigEndianNoReflection(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
-
-		for i := 4; i < 20; i++ {
-			data[i] = mv.CharacterID[i-4]
-		}
-
+		copy(data[4:20], mv.CharacterID[:])
 		binary.BigEndian.PutUint64(data[20:], math.Float64bits(mv.X))
 		binary.BigEndian.PutUint64(data[28:], math.Float64bits(mv.Y))
 		binary.BigEndian.PutUint64(data[36:], math.Float64bits(mv.Z))
