@@ -1,21 +1,22 @@
-name,iterations,time (ns/op),memory consumption (B/op),memory allocations (allocs/op)
-JSON,1473189,922.9,176,2
-YAML,75306,23446,11656,68
-XML,404790,4688,4816,18
-XML attributes only,254930,4019,5440,21
-gob,2522844,432.4,48,1
-MessagePack,1000000,1138,328,5
-BSON,476427,2760,728,12
-CBOR - Canonical options,2454484,615.8,128,2
-CBOR - CTAP2 options,2662606,627.2,128,2
-CBOR - CoreDet options,2488597,617.4,128,2
-CBOR - Preferred unsorted options,3078110,594.6,128,2
-Binary,2768576,434.2,96,9
-Binary - big-endian,3769192,492.1,96,9
-Binary - whole struct,1275570,917.6,136,7
-Binary - whole struct - big-endian,1527124,722.1,136,7
-Binary - no reflection,1000000000,0.2509,0,0
-Binary - no reflection - big-endian,1000000000,0.4970,0,0
-Protobuf,4759012,250.5,48,1
-FlatBuffers,11798912,101.6,0,0
-Unsafe cast,1000000000,0.4769,0,0
+name,encoding iterations,encoding time (ns/op),encoding memory consumption (B/op),encoding memory allocations (allocs/op),decoding iterations,decoding time (ns/op),decoding memory consumption (B/op),decoding memory allocations (allocs/op)
+JSON,1473189,922.9,176,2,395980,3043,296,24
+YAML,75306,23446,11656,68,64710,21023,10648,161
+Strict YAML,75306,23446,11656,68,48426,20677,10648,162
+XML,404790,4688,4816,18,490075,2491,1328,26
+XML attributes only,254930,4019,5440,21,407656,3547,1632,25
+gob,2522844,432.4,48,1,1000000,1231,64,1
+MessagePack,1000000,1138,328,5,1000000,1261,272,6
+BSON,476427,2760,728,12,807846,1342,256,8
+CBOR - Canonical options,2454484,615.8,128,2,2849587,378.1,21,2
+CBOR - CTAP2 options,2662606,627.2,128,2,2991559,414.3,21,2
+CBOR - CoreDet options,2488597,617.4,128,2,2815519,401.8,21,2
+CBOR - Preferred unsorted options,3078110,594.6,128,2,2959423,405.6,21,2
+Binary,2768576,434.2,96,9,3599468,319.0,72,6
+Binary - big-endian,3769192,492.1,96,9,6056268,316.6,72,6
+Binary - whole struct,1275570,917.6,136,7,3412238,295.5,48,1
+Binary - whole struct - big-endian,1527124,722.1,136,7,3845506,337.0,48,1
+Binary - no reflection,1000000000,0.2509,0,0,1000000000,0.4766,0,0
+Binary - no reflection - big-endian,1000000000,0.4970,0,0,1000000000,0.2516,0,0
+Protobuf,4759012,250.5,48,1,7254237,150.5,16,1
+FlatBuffers,11798912,101.6,0,0,1000000000,0.4796,0,0
+Unsafe cast,1000000000,0.4769,0,0,1000000000,0.4771,0,0
