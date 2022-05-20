@@ -1,0 +1,21 @@
+name,iterations,time (ns/op),memory consumption (B/op),memory allocations (allocs/op)
+JSON,1473189,922.9,176,2
+YAML,75306,23446,11656,68
+XML,404790,4688,4816,18
+XML attributes only,254930,4019,5440,21
+gob,2522844,432.4,48,1
+MessagePack,1000000,1138,328,5
+BSON,476427,2760,728,12
+CBOR - Canonical options,2454484,615.8,128,2
+CBOR - CTAP2 options,2662606,627.2,128,2
+CBOR - CoreDet options,2488597,617.4,128,2
+CBOR - Preferred unsorted options,3078110,594.6,128,2
+Binary,2768576,434.2,96,9
+Binary - big-endian,3769192,492.1,96,9
+Binary - whole struct,1275570,917.6,136,7
+Binary - whole struct - big-endian,1527124,722.1,136,7
+Binary - no reflection,1000000000,0.2509,0,0
+Binary - no reflection - big-endian,1000000000,0.4970,0,0
+Protobuf,4759012,250.5,48,1
+FlatBuffers,11798912,101.6,0,0
+Unsafe cast,1000000000,0.4769,0,0
