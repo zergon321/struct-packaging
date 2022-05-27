@@ -6,11 +6,11 @@ import (
 	"encoding/gob"
 	"encoding/json"
 	"encoding/xml"
-	"fmt"
 	"io"
 	"math"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
+	"struct-packaging/util"
 	"testing"
 	"unsafe"
 
@@ -23,99 +23,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// BytesReadWriteSeeker implements Read, Write,
-// Seek and ReadByte functions for byte slice.
-type BytesReadWriteSeeker struct {
-	data []byte
-	pos  int
-}
-
-// Seek moves the pointer to the specified position.
-func (brws *BytesReadWriteSeeker) Seek(offset int64, whence int) (int64, error) {
-	var start int
-
-	switch whence {
-	case io.SeekStart:
-		start = 0
-
-	case io.SeekCurrent:
-		start = brws.pos
-
-	case io.SeekEnd:
-		start = len(brws.data)
-
-	default:
-		return -1, fmt.Errorf("option not defined")
-	}
-
-	newPos := start + int(offset)
-
-	switch {
-	case newPos < 0:
-		newPos = 0
-
-	case newPos > len(brws.data):
-		newPos = len(brws.data)
-	}
-
-	brws.pos = newPos
-
-	return int64(brws.pos), nil
-}
-
-// Write writes the data to the inner buffer.
-func (brws *BytesReadWriteSeeker) Write(p []byte) (n int, err error) {
-	offset := len(p)
-	brws.data = append(brws.data, p...)
-	brws.pos += offset
-
-	return offset, nil
-}
-
-// ReadByte reads exactly 1 byte from the inner buffer.
-func (brws *BytesReadWriteSeeker) ReadByte() (byte, error) {
-	if brws.pos == len(brws.data) {
-		return 0, io.EOF
-	}
-
-	value := brws.data[brws.pos]
-	brws.pos++
-
-	return value, nil
-}
-
-// Read reads the bytes from the inner buffer to the provided buffer.
-func (brws *BytesReadWriteSeeker) Read(p []byte) (n int, err error) {
-	if brws.pos == len(brws.data) {
-		return -1, io.EOF
-	}
-
-	offset := len(p)
-
-	if offset > len(brws.data)-brws.pos {
-		offset = len(brws.data) - brws.pos
-	}
-
-	copy(p, brws.data[brws.pos:brws.pos+offset])
-	brws.pos += offset
-
-	return offset, nil
-}
-
 type Movement struct {
 	Opcode      int32    `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
 	CharacterID [16]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
 	X           float64  `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
 	Y           float64  `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
 	Z           float64  `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
-}
-
-type MovementSlice struct {
-	Opcode      int32   `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
-	CharacterID []byte  `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
-	X           float64 `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
-	Y           float64 `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
-	Z           float64 `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
 type MovementAlt struct {
@@ -292,7 +205,7 @@ func BenchmarkCBORCanonicalOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CanonicalEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -310,7 +223,7 @@ func BenchmarkCBORCTAP2Options(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CTAP2EncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -328,7 +241,7 @@ func BenchmarkCBORCoreDetOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CoreDetEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -346,7 +259,7 @@ func BenchmarkCBORPreferredUnsortedOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.PreferredUnsortedEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -364,9 +277,9 @@ func BenchmarkBinary(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 
 	binary.Write(buffer, binary.LittleEndian, mv.Opcode)
@@ -399,9 +312,9 @@ func BenchmarkBinaryBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 
 	binary.Write(buffer, binary.BigEndian, mv.Opcode)
@@ -434,9 +347,9 @@ func BenchmarkBinaryWholeStruct(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 	binary.Write(buffer, binary.LittleEndian, mv)
 	var newMv Movement
@@ -458,9 +371,9 @@ func BenchmarkBinaryWholeStructBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, movementSize)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 	binary.Write(buffer, binary.BigEndian, mv)
 	var newMv Movement

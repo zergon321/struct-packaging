@@ -11,6 +11,7 @@ import (
 	"math/rand"
 	"struct-packaging/fb"
 	"struct-packaging/pb"
+    "struct-packaging/util"
 	"testing"
 	"unsafe"
 
@@ -225,7 +226,7 @@ func Benchmark{{ .arraySize }}CBORCanonicalOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CanonicalEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -246,7 +247,7 @@ func Benchmark{{ .arraySize }}CBORCTAP2Options(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CTAP2EncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -267,7 +268,7 @@ func Benchmark{{ .arraySize }}CBORCoreDetOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.CoreDetEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -288,7 +289,7 @@ func Benchmark{{ .arraySize }}CBORPreferredUnsortedOptions(b *testing.B) {
 	}
 	data, _ := cbor.Marshal(mv,
 		cbor.PreferredUnsortedEncOptions())
-	var newMv MovementSlice
+	var newMv util.MovementSlice
 
 	for i := 0; i < b.N; i++ {
 		cbor.Unmarshal(data, &newMv)
@@ -309,9 +310,9 @@ func Benchmark{{ .arraySize }}Binary(b *testing.B) {
 	}
 
 	data := make([]byte, 0, Movement{{ .arraySize }}Size)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 
 	binary.Write(buffer, binary.LittleEndian, mv.Opcode)
@@ -347,9 +348,9 @@ func Benchmark{{ .arraySize }}BinaryBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, Movement{{ .arraySize }}Size)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 
 	binary.Write(buffer, binary.BigEndian, mv.Opcode)
@@ -385,9 +386,9 @@ func Benchmark{{ .arraySize }}BinaryWholeStruct(b *testing.B) {
 	}
 
 	data := make([]byte, 0, Movement{{ .arraySize }}Size)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 	binary.Write(buffer, binary.LittleEndian, mv)
 	var newMv Movement{{ .arraySize }}
@@ -412,9 +413,9 @@ func Benchmark{{ .arraySize }}BinaryWholeStructBigEndian(b *testing.B) {
 	}
 
 	data := make([]byte, 0, Movement{{ .arraySize }}Size)
-	buffer := &BytesReadWriteSeeker{
-		data: data,
-		pos:  0,
+	buffer := &util.BytesReadWriteSeeker{
+		Data: data,
+		Pos:  0,
 	}
 	binary.Write(buffer, binary.BigEndian, mv)
 	var newMv Movement{{ .arraySize }}

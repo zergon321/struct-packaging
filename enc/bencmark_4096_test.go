@@ -22,23 +22,23 @@ import (
 )
 
 type Movement4096 struct {
-	Opcode      int32      `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
+	Opcode      int32     `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
 	CharacterID [4096]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
-	X           float64    `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
-	Y           float64    `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
-	Z           float64    `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
+	X           float64   `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
+	Y           float64   `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
+	Z           float64   `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
 type Movement4096Alt struct {
-	Opcode      int32      `xml:"opcode,attr"      `
+	Opcode      int32     `xml:"opcode,attr"      `
 	CharacterID [4096]byte `xml:"character_id,attr"`
-	X           float64    `xml:"x,attr"           `
-	Y           float64    `xml:"y,attr"           `
-	Z           float64    `xml:"z,attr"           `
+	X           float64   `xml:"x,attr"           `
+	Y           float64   `xml:"y,attr"           `
+	Z           float64   `xml:"z,attr"           `
 }
 
 const (
-	movement4096Size = int(unsafe.Sizeof(Movement{}))
+	movement4096Size = int(unsafe.Sizeof(Movement4096{}))
 )
 
 func Benchmark4096JSON(b *testing.B) {
@@ -362,10 +362,10 @@ func Benchmark4096BinaryNoReflection(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
-		copy(data[4:516], mv.CharacterID[:])
-		binary.LittleEndian.PutUint64(data[516:], math.Float64bits(mv.X))
-		binary.LittleEndian.PutUint64(data[524:], math.Float64bits(mv.Y))
-		binary.LittleEndian.PutUint64(data[532:], math.Float64bits(mv.Z))
+		copy(data[4:4100], mv.CharacterID[:])
+		binary.LittleEndian.PutUint64(data[4100:], math.Float64bits(mv.X))
+		binary.LittleEndian.PutUint64(data[4108:], math.Float64bits(mv.Y))
+		binary.LittleEndian.PutUint64(data[4116:], math.Float64bits(mv.Z))
 	}
 }
 
@@ -386,10 +386,10 @@ func Benchmark4096BinaryBigEndianNoReflection(b *testing.B) {
 
 	for i := 0; i < b.N; i++ {
 		binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
-		copy(data[4:516], mv.CharacterID[:])
-		binary.BigEndian.PutUint64(data[516:], math.Float64bits(mv.X))
-		binary.BigEndian.PutUint64(data[524:], math.Float64bits(mv.Y))
-		binary.BigEndian.PutUint64(data[532:], math.Float64bits(mv.Z))
+		copy(data[4:4100], mv.CharacterID[:])
+		binary.BigEndian.PutUint64(data[4100:], math.Float64bits(mv.X))
+		binary.BigEndian.PutUint64(data[4108:], math.Float64bits(mv.Y))
+		binary.BigEndian.PutUint64(data[4116:], math.Float64bits(mv.Z))
 	}
 }
 

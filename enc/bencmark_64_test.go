@@ -21,32 +21,32 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Movement{{ .arraySize }} struct {
+type Movement64 struct {
 	Opcode      int32     `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
-	CharacterID [{{ .arraySize }}]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	CharacterID [64]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
 	X           float64   `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
 	Y           float64   `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
 	Z           float64   `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
-type Movement{{ .arraySize }}Alt struct {
+type Movement64Alt struct {
 	Opcode      int32     `xml:"opcode,attr"      `
-	CharacterID [{{ .arraySize }}]byte `xml:"character_id,attr"`
+	CharacterID [64]byte `xml:"character_id,attr"`
 	X           float64   `xml:"x,attr"           `
 	Y           float64   `xml:"y,attr"           `
 	Z           float64   `xml:"z,attr"           `
 }
 
 const (
-	movement{{ .arraySize }}Size = int(unsafe.Sizeof(Movement{{ .arraySize }}{}))
+	movement64Size = int(unsafe.Sizeof(Movement64{}))
 )
 
-func Benchmark{{ .arraySize }}JSON(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64JSON(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -59,12 +59,12 @@ func Benchmark{{ .arraySize }}JSON(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}YAML(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64YAML(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -77,12 +77,12 @@ func Benchmark{{ .arraySize }}YAML(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}XML(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64XML(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -95,12 +95,12 @@ func Benchmark{{ .arraySize }}XML(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}XMLAlt(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64XMLAlt(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}Alt{
+	mv := Movement64Alt{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -113,12 +113,12 @@ func Benchmark{{ .arraySize }}XMLAlt(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}Gob(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64Gob(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -126,7 +126,7 @@ func Benchmark{{ .arraySize }}Gob(b *testing.B) {
 		Z:           45.13,
 	}
 
-	buffer := bytes.NewBuffer(make([]byte, 0, movement{{ .arraySize }}Size))
+	buffer := bytes.NewBuffer(make([]byte, 0, movement64Size))
 	enc := gob.NewEncoder(buffer)
 
 	for i := 0; i < b.N; i++ {
@@ -135,12 +135,12 @@ func Benchmark{{ .arraySize }}Gob(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}Msgpack(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64Msgpack(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -153,12 +153,12 @@ func Benchmark{{ .arraySize }}Msgpack(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}BSON(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BSON(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -171,12 +171,12 @@ func Benchmark{{ .arraySize }}BSON(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}CBORCanonicalOptions(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64CBORCanonicalOptions(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -190,12 +190,12 @@ func Benchmark{{ .arraySize }}CBORCanonicalOptions(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}CBORCTAP2Options(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64CBORCTAP2Options(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -209,12 +209,12 @@ func Benchmark{{ .arraySize }}CBORCTAP2Options(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}CBORCoreDetOptions(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64CBORCoreDetOptions(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -228,12 +228,12 @@ func Benchmark{{ .arraySize }}CBORCoreDetOptions(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}CBORPreferredUnsortedOptions(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64CBORPreferredUnsortedOptions(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -247,12 +247,12 @@ func Benchmark{{ .arraySize }}CBORPreferredUnsortedOptions(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}Binary(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64Binary(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -260,7 +260,7 @@ func Benchmark{{ .arraySize }}Binary(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement{{ .arraySize }}Size)
+	data := make([]byte, 0, movement64Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -274,12 +274,12 @@ func Benchmark{{ .arraySize }}Binary(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}BinaryBigEndian(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BinaryBigEndian(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -287,7 +287,7 @@ func Benchmark{{ .arraySize }}BinaryBigEndian(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement{{ .arraySize }}Size)
+	data := make([]byte, 0, movement64Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -301,12 +301,12 @@ func Benchmark{{ .arraySize }}BinaryBigEndian(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}BinaryWholeStruct(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BinaryWholeStruct(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -314,7 +314,7 @@ func Benchmark{{ .arraySize }}BinaryWholeStruct(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement{{ .arraySize }}Size)
+	data := make([]byte, 0, movement64Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -323,12 +323,12 @@ func Benchmark{{ .arraySize }}BinaryWholeStruct(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}BinaryWholeStructBigEndian(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BinaryWholeStructBigEndian(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -336,7 +336,7 @@ func Benchmark{{ .arraySize }}BinaryWholeStructBigEndian(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement{{ .arraySize }}Size)
+	data := make([]byte, 0, movement64Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -345,12 +345,12 @@ func Benchmark{{ .arraySize }}BinaryWholeStructBigEndian(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}BinaryNoReflection(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BinaryNoReflection(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -358,23 +358,23 @@ func Benchmark{{ .arraySize }}BinaryNoReflection(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movement{{ .arraySize }}Size)
+	data := make([]byte, movement64Size)
 
 	for i := 0; i < b.N; i++ {
 		binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
-		copy(data[4:{{ add .arraySize 4 }}], mv.CharacterID[:])
-		binary.LittleEndian.PutUint64(data[{{ add .arraySize 4 }}:], math.Float64bits(mv.X))
-		binary.LittleEndian.PutUint64(data[{{ add .arraySize 12 }}:], math.Float64bits(mv.Y))
-		binary.LittleEndian.PutUint64(data[{{ add .arraySize 20 }}:], math.Float64bits(mv.Z))
+		copy(data[4:68], mv.CharacterID[:])
+		binary.LittleEndian.PutUint64(data[68:], math.Float64bits(mv.X))
+		binary.LittleEndian.PutUint64(data[76:], math.Float64bits(mv.Y))
+		binary.LittleEndian.PutUint64(data[84:], math.Float64bits(mv.Z))
 	}
 }
 
-func Benchmark{{ .arraySize }}BinaryBigEndianNoReflection(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64BinaryBigEndianNoReflection(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -382,20 +382,20 @@ func Benchmark{{ .arraySize }}BinaryBigEndianNoReflection(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movement{{ .arraySize }}Size)
+	data := make([]byte, movement64Size)
 
 	for i := 0; i < b.N; i++ {
 		binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
-		copy(data[4:{{ add .arraySize 4 }}], mv.CharacterID[:])
-		binary.BigEndian.PutUint64(data[{{ add .arraySize 4 }}:], math.Float64bits(mv.X))
-		binary.BigEndian.PutUint64(data[{{ add .arraySize 12 }}:], math.Float64bits(mv.Y))
-		binary.BigEndian.PutUint64(data[{{ add .arraySize 20 }}:], math.Float64bits(mv.Z))
+		copy(data[4:68], mv.CharacterID[:])
+		binary.BigEndian.PutUint64(data[68:], math.Float64bits(mv.X))
+		binary.BigEndian.PutUint64(data[76:], math.Float64bits(mv.Y))
+		binary.BigEndian.PutUint64(data[84:], math.Float64bits(mv.Z))
 	}
 }
 
-func Benchmark{{ .arraySize }}Protobuf(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64Protobuf(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
 	mv := pb.Movement{
@@ -411,12 +411,12 @@ func Benchmark{{ .arraySize }}Protobuf(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}FlatBuffers(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64FlatBuffers(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -424,7 +424,7 @@ func Benchmark{{ .arraySize }}FlatBuffers(b *testing.B) {
 		Z:           45.13,
 	}
 
-	builder := flatbuffers.NewBuilder(movement{{ .arraySize }}Size)
+	builder := flatbuffers.NewBuilder(movement64Size)
 
 	for i := 0; i < b.N; i++ {
 		builder.Reset()
@@ -433,12 +433,12 @@ func Benchmark{{ .arraySize }}FlatBuffers(b *testing.B) {
 	}
 }
 
-func Benchmark{{ .arraySize }}Unsafe(b *testing.B) {
-	rand.Seed({{ .arraySize }})
-	var randomData [{{ .arraySize }}]byte
+func Benchmark64Unsafe(b *testing.B) {
+	rand.Seed(64)
+	var randomData [64]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement{{ .arraySize }}{
+	mv := Movement64{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -447,6 +447,6 @@ func Benchmark{{ .arraySize }}Unsafe(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		_ = (*[movement{{ .arraySize }}Size]byte)(unsafe.Pointer(&mv))[:]
+		_ = (*[movement64Size]byte)(unsafe.Pointer(&mv))[:]
 	}
 }

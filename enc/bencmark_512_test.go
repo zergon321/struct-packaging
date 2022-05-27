@@ -21,32 +21,32 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type Movement128 struct {
+type Movement512 struct {
 	Opcode      int32     `json:"opcode"       yaml:"opcode"       xml:"opcode"       cbor:"opcode"       msgpack:"opcode"       bson:"opcode"      `
-	CharacterID [128]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
+	CharacterID [512]byte `json:"character_id" yaml:"character_id" xml:"character_id" cbor:"character_id" msgpack:"character_id" bson:"character_id"`
 	X           float64   `json:"x"            yaml:"x"            xml:"x"            cbor:"x"            msgpack:"x"            bson:"x"           `
 	Y           float64   `json:"y"            yaml:"y"            xml:"y"            cbor:"y"            msgpack:"y"            bson:"y"           `
 	Z           float64   `json:"z"            yaml:"z"            xml:"z"            cbor:"z"            msgpack:"z"            bson:"z"           `
 }
 
-type Movement128Alt struct {
+type Movement512Alt struct {
 	Opcode      int32     `xml:"opcode,attr"      `
-	CharacterID [128]byte `xml:"character_id,attr"`
+	CharacterID [512]byte `xml:"character_id,attr"`
 	X           float64   `xml:"x,attr"           `
 	Y           float64   `xml:"y,attr"           `
 	Z           float64   `xml:"z,attr"           `
 }
 
 const (
-	movement128Size = int(unsafe.Sizeof(Movement{}))
+	movement512Size = int(unsafe.Sizeof(Movement512{}))
 )
 
-func Benchmark128JSON(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512JSON(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -59,12 +59,12 @@ func Benchmark128JSON(b *testing.B) {
 	}
 }
 
-func Benchmark128YAML(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512YAML(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -77,12 +77,12 @@ func Benchmark128YAML(b *testing.B) {
 	}
 }
 
-func Benchmark128XML(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512XML(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -95,12 +95,12 @@ func Benchmark128XML(b *testing.B) {
 	}
 }
 
-func Benchmark128XMLAlt(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512XMLAlt(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128Alt{
+	mv := Movement512Alt{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -113,12 +113,12 @@ func Benchmark128XMLAlt(b *testing.B) {
 	}
 }
 
-func Benchmark128Gob(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512Gob(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -126,7 +126,7 @@ func Benchmark128Gob(b *testing.B) {
 		Z:           45.13,
 	}
 
-	buffer := bytes.NewBuffer(make([]byte, 0, movement128Size))
+	buffer := bytes.NewBuffer(make([]byte, 0, movement512Size))
 	enc := gob.NewEncoder(buffer)
 
 	for i := 0; i < b.N; i++ {
@@ -135,12 +135,12 @@ func Benchmark128Gob(b *testing.B) {
 	}
 }
 
-func Benchmark128Msgpack(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512Msgpack(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -153,12 +153,12 @@ func Benchmark128Msgpack(b *testing.B) {
 	}
 }
 
-func Benchmark128BSON(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BSON(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -171,12 +171,12 @@ func Benchmark128BSON(b *testing.B) {
 	}
 }
 
-func Benchmark128CBORCanonicalOptions(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512CBORCanonicalOptions(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -190,12 +190,12 @@ func Benchmark128CBORCanonicalOptions(b *testing.B) {
 	}
 }
 
-func Benchmark128CBORCTAP2Options(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512CBORCTAP2Options(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -209,12 +209,12 @@ func Benchmark128CBORCTAP2Options(b *testing.B) {
 	}
 }
 
-func Benchmark128CBORCoreDetOptions(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512CBORCoreDetOptions(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -228,12 +228,12 @@ func Benchmark128CBORCoreDetOptions(b *testing.B) {
 	}
 }
 
-func Benchmark128CBORPreferredUnsortedOptions(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512CBORPreferredUnsortedOptions(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -247,12 +247,12 @@ func Benchmark128CBORPreferredUnsortedOptions(b *testing.B) {
 	}
 }
 
-func Benchmark128Binary(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512Binary(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -260,7 +260,7 @@ func Benchmark128Binary(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement128Size)
+	data := make([]byte, 0, movement512Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -274,12 +274,12 @@ func Benchmark128Binary(b *testing.B) {
 	}
 }
 
-func Benchmark128BinaryBigEndian(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BinaryBigEndian(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -287,7 +287,7 @@ func Benchmark128BinaryBigEndian(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement128Size)
+	data := make([]byte, 0, movement512Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -301,12 +301,12 @@ func Benchmark128BinaryBigEndian(b *testing.B) {
 	}
 }
 
-func Benchmark128BinaryWholeStruct(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BinaryWholeStruct(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -314,7 +314,7 @@ func Benchmark128BinaryWholeStruct(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement128Size)
+	data := make([]byte, 0, movement512Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -323,12 +323,12 @@ func Benchmark128BinaryWholeStruct(b *testing.B) {
 	}
 }
 
-func Benchmark128BinaryWholeStructBigEndian(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BinaryWholeStructBigEndian(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -336,7 +336,7 @@ func Benchmark128BinaryWholeStructBigEndian(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, 0, movement128Size)
+	data := make([]byte, 0, movement512Size)
 	buffer := bytes.NewBuffer(data)
 
 	for i := 0; i < b.N; i++ {
@@ -345,12 +345,12 @@ func Benchmark128BinaryWholeStructBigEndian(b *testing.B) {
 	}
 }
 
-func Benchmark128BinaryNoReflection(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BinaryNoReflection(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -358,7 +358,7 @@ func Benchmark128BinaryNoReflection(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movement128Size)
+	data := make([]byte, movement512Size)
 
 	for i := 0; i < b.N; i++ {
 		binary.LittleEndian.PutUint32(data, uint32(mv.Opcode))
@@ -369,12 +369,12 @@ func Benchmark128BinaryNoReflection(b *testing.B) {
 	}
 }
 
-func Benchmark128BinaryBigEndianNoReflection(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512BinaryBigEndianNoReflection(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -382,7 +382,7 @@ func Benchmark128BinaryBigEndianNoReflection(b *testing.B) {
 		Z:           45.13,
 	}
 
-	data := make([]byte, movement128Size)
+	data := make([]byte, movement512Size)
 
 	for i := 0; i < b.N; i++ {
 		binary.BigEndian.PutUint32(data, uint32(mv.Opcode))
@@ -393,9 +393,9 @@ func Benchmark128BinaryBigEndianNoReflection(b *testing.B) {
 	}
 }
 
-func Benchmark128Protobuf(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512Protobuf(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
 	mv := pb.Movement{
@@ -411,12 +411,12 @@ func Benchmark128Protobuf(b *testing.B) {
 	}
 }
 
-func Benchmark128FlatBuffers(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512FlatBuffers(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -424,7 +424,7 @@ func Benchmark128FlatBuffers(b *testing.B) {
 		Z:           45.13,
 	}
 
-	builder := flatbuffers.NewBuilder(movement128Size)
+	builder := flatbuffers.NewBuilder(movement512Size)
 
 	for i := 0; i < b.N; i++ {
 		builder.Reset()
@@ -433,12 +433,12 @@ func Benchmark128FlatBuffers(b *testing.B) {
 	}
 }
 
-func Benchmark128Unsafe(b *testing.B) {
-	rand.Seed(128)
-	var randomData [128]byte
+func Benchmark512Unsafe(b *testing.B) {
+	rand.Seed(512)
+	var randomData [512]byte
 	rand.Read(randomData[:])
 	characterID := randomData
-	mv := Movement128{
+	mv := Movement512{
 		Opcode:      32,
 		CharacterID: characterID,
 		X:           13.34,
@@ -447,6 +447,6 @@ func Benchmark128Unsafe(b *testing.B) {
 	}
 
 	for i := 0; i < b.N; i++ {
-		_ = (*[movement128Size]byte)(unsafe.Pointer(&mv))[:]
+		_ = (*[movement512Size]byte)(unsafe.Pointer(&mv))[:]
 	}
 }
