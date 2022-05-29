@@ -11,6 +11,8 @@ import (
 func main() {
 	regex, err := regexp.Compile("\\s+")
 	handleError(err)
+	regexFinder, err := regexp.Compile("Benchmark(\\d+)(\\w+)\\-\\d+")
+	handleError(err)
 	reader := bufio.NewScanner(os.Stdin)
 
 	for reader.Scan() {
@@ -20,7 +22,12 @@ func main() {
 			continue
 		}
 
-		fmt.Println(str)
+		strs := regexFinder.FindAllStringSubmatch(str, -1)
+		parts := strings.Split(str, ",")
+		data := append(strs[0][1:], parts[1:]...)
+		columns := strings.Join(data, ",")
+
+		fmt.Println(columns)
 	}
 }
 
