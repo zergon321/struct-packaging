@@ -16,9 +16,9 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-type PerformancePoint struct {
-	ArraySize   float64 `db:"array_size"`
-	Performance float64 `db:"performance"`
+type MemoryPoint struct {
+	ArraySize float64 `db:"array_size"`
+	Memory    float64 `db:"memory"`
 }
 
 func main() {
@@ -70,7 +70,7 @@ func main() {
 	sort.Strings(methodNames)
 
 	query = `
-			SELECT array_size, performance
+			SELECT array_size, memory
 			FROM benchmarks
 			WHERE method_name = ?
 			ORDER BY array_size`
@@ -80,14 +80,14 @@ func main() {
 		pl.Title.Text = method
 
 		var xys plotter.XYs
-		var points []PerformancePoint
+		var points []MemoryPoint
 		err = db.Select(&points, query, method)
 		handleError(err)
 
 		fmt.Println(method)
 
 		for _, point := range points {
-			xys = append(xys, plotter.XY{X: point.ArraySize, Y: point.Performance})
+			xys = append(xys, plotter.XY{X: point.ArraySize, Y: point.Memory})
 		}
 
 		line, err := plotter.NewLine(xys)

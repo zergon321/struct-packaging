@@ -10,6 +10,7 @@ type Movement struct {
 	X      float64
 	Y      float64
 	Z      float64
+	K      int32
 }
 
 const (
@@ -27,6 +28,7 @@ func main() {
 		X:      13.34,
 		Y:      20.36,
 		Z:      45.13,
+		K:      16,
 	}
 	packet := (*[movementSize]byte)(unsafe.Pointer(&mv))[:]
 
