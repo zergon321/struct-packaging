@@ -12,7 +12,7 @@ import (
 var (
 	templatePath string
 	outDir       string
-	sizes        = []int{16, 32, 64, 128, 256, 512, 1024, 2048, 4096}
+	sizes        = []int{16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072}
 	funcs        = template.FuncMap{
 		"add": addNumbers,
 	}

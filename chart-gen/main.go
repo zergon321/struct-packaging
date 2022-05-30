@@ -69,9 +69,6 @@ func main() {
 
 	sort.Strings(methodNames)
 
-	pl := plot.New()
-	pl.Title.Text = "Benchmarks"
-
 	query = `
 			SELECT array_size, performance
 			FROM benchmarks
@@ -79,18 +76,13 @@ func main() {
 			ORDER BY array_size`
 
 	for i, method := range methodNames {
-		if method == "YAML" {
-			continue
-		}
+		pl := plot.New()
+		pl.Title.Text = method
 
 		var xys plotter.XYs
 		var points []PerformancePoint
 		err = db.Select(&points, query, method)
 		handleError(err)
-
-		if points[0].Performance > 1 {
-			continue
-		}
 
 		fmt.Println(method)
 
@@ -104,10 +96,9 @@ func main() {
 		line.Width = 1.5
 
 		pl.Add(line)
+		err = pl.Save(15*vg.Centimeter, 15*vg.Centimeter, "pics/"+method+".png")
+		handleError(err)
 	}
-
-	err = pl.Save(15*vg.Centimeter, 15*vg.Centimeter, "plot.png")
-	handleError(err)
 }
 
 func handleError(err error) {
