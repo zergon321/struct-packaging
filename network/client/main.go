@@ -27,7 +27,7 @@ func up(mv Movement) []byte {
 
 func main() {
 	characterID := uuid.New()
-	conn, err := net.Dial("tcp", "127.0.0.1:9828")
+	conn, err := net.Dial("tcp", "v1215758.hosted-by-vdsina.ru:9828")
 	handleError(err)
 
 	for {

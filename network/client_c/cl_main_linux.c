@@ -5,26 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "data.h"
 
-typedef struct Packet {
-    int Opcode;
-    char CharacterID[16];
-    double X;
-    double Y;
-    double Z;
-} Packet;
-
-typedef unsigned char byte;
 typedef struct sockaddr_in sockaddr_in;
 typedef struct sockaddr sockaddr;
-
-void readRandomData(byte* arr, size_t size) {
-    srand(time(NULL));
-
-    for (int i = 0; i < size; i++) {
-        arr[i] = rand();
-    }
-}
 
 int main() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
