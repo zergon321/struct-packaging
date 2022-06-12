@@ -24,7 +24,7 @@ func down(data []byte) Movement {
 }
 
 func main() {
-	listener, err := net.Listen("tcp", "127.0.0.1:9828")
+	listener, err := net.Listen("tcp", "0.0.0.0:9828")
 	handleError(err)
 	conn, err := listener.Accept()
 	handleError(err)
