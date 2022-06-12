@@ -22,7 +22,7 @@ int main() {
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(9828);
 
-    if (inet_pton(AF_INET, "v1215758.hosted-by-vdsina.ru", &serverAddress.sin_addr)<=0) {
+    if (inet_pton(AF_INET, "176.124.202.165", &serverAddress.sin_addr)<=0) {
         puts("inet_pton error occured\n");
         return -1;
     }

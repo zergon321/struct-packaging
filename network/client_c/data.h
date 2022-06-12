@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 typedef struct Packet {
     int Opcode;
     char CharacterID[16];
