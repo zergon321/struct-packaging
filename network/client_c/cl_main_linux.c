@@ -14,7 +14,7 @@ int main() {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
     if (sock < 0) {
-        puts("couldn;t create a socket\n");
+        puts("couldn't create a socket\n");
         return -1;
     }
 
