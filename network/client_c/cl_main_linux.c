@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <errno.h>
 #include "data.h"
 
 typedef struct sockaddr_in sockaddr_in;
@@ -15,6 +16,7 @@ int main() {
 
     if (sock < 0) {
         puts("couldn't create a socket\n");
+        puts(strerror(errno));
         return -1;
     }
 
@@ -24,11 +26,13 @@ int main() {
 
     if (inet_pton(AF_INET, "176.124.202.165", &serverAddress.sin_addr)<=0) {
         puts("inet_pton error occured\n");
+        puts(strerror(errno));
         return -1;
     }
 
     if (connect(sock, (sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
         puts("connect error occured\n");
+        puts(strerror(errno));
         return -1;
     }
 
